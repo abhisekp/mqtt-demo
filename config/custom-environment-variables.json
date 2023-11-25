@@ -1,0 +1,14 @@
+{
+  "mqtt": {
+    "serverUrl": "MQTT_SERVER_URL",
+    "subscriptions": {
+      "__name": "MQTT_SUBSCRIPTIONS",
+      "__format": "json"
+    },
+    "options": {
+      "password": "MQTT_PASSWORD",
+      "username": "MQTT_USERNAME",
+      "clientId": "MQTT_CLIENT_ID"
+    }
+  }
+}
