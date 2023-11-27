@@ -5,6 +5,8 @@
       "__name": "MQTT_SUBSCRIPTIONS",
       "__format": "json"
     },
+    "publish": "MQTT_PUBLISH_TOPIC",
+    "mediaToken": "MQTT_MEDIA_TOKEN",
     "options": {
       "password": "MQTT_PASSWORD",
       "username": "MQTT_USERNAME",
