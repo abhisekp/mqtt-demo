@@ -22,3 +22,8 @@ export enum Method {
   OPEN_BREAKOUT_ROOM = "open_breakout_room",
   OPEN_PRIMARY_STREAMING_IN_BREAKOUT = "open_primary_streaming_in_breakout",
 }
+
+export enum Channel {
+  PRIMARY = "primary",
+  SECONDARY = "secondary",
+}

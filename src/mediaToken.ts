@@ -1,25 +1,30 @@
 import { sign } from "jsonwebtoken";
 import config from "config";
+import { Channel } from "./constants";
 
-export const createRealtimeStreamingMediaMqttToken = ({
+export const createMediaMqttToken = ({
   ssoId,
-  channel = "primary",
+  channel = Channel.PRIMARY,
   start = new Date(),
   end,
 }: {
   ssoId: string;
-  channel?: "primary" | "secondary";
+  channel?: Channel;
   start?: Date;
   end?: Date;
 }) => {
   const ipdRtPptId = `${ssoId}-${channel}`;
+
+  const channelNum = [Channel.PRIMARY, Channel.SECONDARY].indexOf(channel);
 
   // end = start + 1 year
   end = end || new Date(start.getTime() + 1000 * 60 * 60 * 24 * 365);
 
   return sign(
     {
-      channel,
+      channel: channelNum,
+      admin: true,
+
       iat: Math.floor(new Date().getTime()) / 1000,
       nbf: Math.floor(start.getTime() / 1000),
       exp: Math.floor(end.getTime() / 1000),
@@ -28,6 +33,7 @@ export const createRealtimeStreamingMediaMqttToken = ({
     {
       subject: ipdRtPptId,
       issuer: "emqx-demo",
+      algorithm: "HS256",
     },
   );
 };

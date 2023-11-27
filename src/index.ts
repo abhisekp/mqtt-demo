@@ -2,11 +2,11 @@ import mqtt from "mqtt";
 import config from "config";
 import { Method } from "./constants";
 import { ManagerMsg } from "./types";
-import { createRealtimeStreamingMqttToken } from "./mqttToken";
-import { createRealtimeStreamingMediaMqttToken } from "./mediaToken";
+import { createMqttToken } from "./mqttToken";
+import { createMediaMqttToken } from "./mediaToken";
 import _ from "lodash";
 
-console.log(config.util.toObject());
+// console.log(config.util.toObject());
 
 const mqttServerUrl = config.get<string>("mqtt.serverUrl");
 const mqttOptions = config.get<mqtt.IClientOptions>("mqtt.options") || {};
@@ -27,51 +27,60 @@ function onMQTTMessage(): mqtt.OnMessageCallback {
 
 let client: mqtt.MqttClient;
 
-async function publish(topic: string, message: ManagerMsg) {
-  const msg = JSON.stringify(message);
-  return client.publishAsync(topic, msg, {
-    qos: 1,
-    retain: false,
+async function publish() {
+  const mqttMediaToken = createMediaMqttToken({
+    ssoId: mqttOptions.username! as string,
   });
+
+  const topic = config.get<string>("mqtt.publish");
+
+  const message: ManagerMsg = {
+    method: Method.OPEN_BREAKOUT_ROOM,
+    token: mqttMediaToken,
+    srcId: mqttOptions.username! as string,
+    params: {
+      open: _.sample([true, false]),
+    },
+  };
+  const msg = JSON.stringify(message);
+
+  console.log(
+    "Published:",
+    await client.publishAsync(topic, msg, {
+      qos: 1,
+      retain: false,
+      dup: false,
+    }),
+  );
 }
 
 async function run() {
   client.subscribe(
-    topics.map((t) => t),
+    topics,
     {
       qos: 0,
       rap: true,
     },
-    (err) => {
+    async (err) => {
       if (err) {
         console.error(err);
         return;
       }
 
       console.log("Subscribed to all topics", topics);
+
+      try {
+        await publish();
+      } catch (e) {
+        console.error(e);
+      }
     },
-  );
-
-  const mqttMediaToken = createRealtimeStreamingMediaMqttToken({
-    ssoId: mqttOptions.username! as string,
-  });
-
-  console.log(
-    "Published:",
-    await publish(config.get<string>("mqtt.publish"), {
-      method: Method.OPEN_BREAKOUT_ROOM,
-      token: mqttMediaToken,
-      srcId: mqttOptions.username! as string,
-      params: {
-        open: _.sample([true, false]),
-      },
-    }),
   );
 }
 
 (async function start() {
   const username = mqttOptions.username!;
-  const password = createRealtimeStreamingMqttToken({
+  const password = createMqttToken({
     webrtcAppId: config.get<string>("mqtt.webrtcAppId"),
     ssoId: username,
   });

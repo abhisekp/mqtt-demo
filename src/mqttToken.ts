@@ -1,16 +1,17 @@
 import { sign } from "jsonwebtoken";
 import config from "config";
+import { Channel } from "./constants";
 
-export const createRealtimeStreamingMqttToken = ({
+export const createMqttToken = ({
   webrtcAppId,
   ssoId,
-  channel = "primary",
+  channel = Channel.PRIMARY,
   start = new Date(),
   end,
 }: {
   webrtcAppId: string;
   ssoId: string;
-  channel?: "primary" | "secondary";
+  channel?: Channel;
   start?: Date;
   end?: Date;
 }) => {
